@@ -1,4 +1,4 @@
-import { SignJWT } from "jose";
+import { jwtVerify, SignJWT } from "jose";
 
 const jwtSecret = process.env.JWT_SECRET;
 const accessTokenExpiresIn = process.env.JWT_ACCESS_EXPIRES_IN ?? "15m";
@@ -21,4 +21,18 @@ export async function generateAccessToken(userId: string): Promise<string> {
         .setIssuer("taskflow-api")
         .setAudience("taskflow-client")
         .sign(secretKey);
+}
+
+export async function verifyAccessToken(token: string): Promise<string> {
+    const { payload } = await jwtVerify(token, secretKey, {
+        algorithms: ["HS256"],
+        issuer: "taskflow-api",
+        audience: "taskflow-client",
+    });
+
+    if (!payload.sub) {
+        throw new Error("Token subject is missing");
+    }
+
+    return payload.sub;
 }

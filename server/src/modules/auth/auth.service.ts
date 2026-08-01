@@ -3,7 +3,6 @@ import prisma from "../../lib/prisma.js";
 import { AppError } from "../../common/errors/AppError.js";
 import type { LoginInput, RegisterInput } from "./auth.schema.js";
 import { generateAccessToken } from "../../common/utils/jwt.js";
-import { email } from "zod";
 
 export async function registerUser(input: RegisterInput) {
     const existingUser = await prisma.user.findUnique({
@@ -74,4 +73,24 @@ export async function loginUser(input: LoginInput) {
         },
         accessToken,
     }
+}
+
+export async function getCurrentUser(userId: string) {
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+        }
+    });
+
+    if (!user){
+        throw new AppError({message: "Authenticated user no longer exists", statusCode: 401, code: "USER_NOT_FOUND"});
+    }
+
+    return user;
 }
