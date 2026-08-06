@@ -1,7 +1,8 @@
 import express from "express";
 import authRouter from "./modules/auth/auth.routes.js";
 import projectRouter from "./modules/projects/project.routes.js";
-import { errorHandler } from "./common/middleware/errorhandler.js";
+import memberRouter from "./modules/project-members/project-member.routes.js";
+import { errorHandler } from "./common/middleware/errorHandler.js";
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRouter);
 
 app.use("/api/projects", projectRouter);
+
+app.use("/api/projects", memberRouter);
 
 app.use(errorHandler);
 
