@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import authRouter from "./modules/auth/auth.routes.js";
 import projectRouter from "./modules/projects/project.routes.js";
 import memberRouter from "./modules/project-members/project-member.routes.js";
@@ -10,6 +11,11 @@ import cookieParser from "cookie-parser";
 import { errorHandler } from "./common/middleware/errorhandler.js";
 
 const app = express();
+
+app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+}));
 
 app.use(express.json());
 
