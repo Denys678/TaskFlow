@@ -1,16 +1,29 @@
 "use client";
 
+import { useAuth } from "@/app/contexts/AuthContext";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
 export function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [isLoading, setLoading] = useState(false);
 
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    const { login, user, isAuthLoading } = useAuth();
+
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        setError("");
+        setLoading(true);
 
-        console.log(email, password);
+        try {
+            await login(email, password);
+        } catch {
+            setError("Unable to connect to server");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -40,11 +53,22 @@ export function LoginForm() {
                     className="w-full outline-none"
                 />
             </fieldset>
+            {error && (
+                <p className="text-center font-semibold text-red-900">{error}</p>
+            )}
+            {isAuthLoading ? (
+                <p>Checking session...</p>
+            ): user ? (
+                <p>{user.name}</p>
+            ) : (
+                <p>Not authenticated</p>
+            )}
             <button
                 type="submit"
-                className="text-white text-[18px] bg-zinc-900 rounded-md py-4 px-12 hover:bg-zinc-800 cursor-pointer"
+                className="text-white text-[18px] bg-zinc-900 rounded-md py-4 px-12 hover:bg-zinc-800 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isLoading}
             >
-                    Login
+                {isLoading ? "Logging in ..." : "Login"}
             </button>
         </form>
     );
